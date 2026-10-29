@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1020">
+  <meta name="description" content="SignalShield AI is a student project for exploring toxicity signals in text and transcribed speech.">
+  <title>SignalShield AI — Safer conversations</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {"imports":{"@huggingface/transformers":"https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2"}}
+  </script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="SignalShield home"><span class="brand-mark">S</span><span>SignalShield<span class="brand-ai"> AI</span><small>SAFER CONVERSATIONS, BUILT WITH AI</small></span></a>
+    <nav><a href="#analyzer">Analyzer</a><a href="#audio-lab">Audio lab</a><a href="#how-it-works">How it works</a></nav>
+    <button id="themeBtn" class="icon-btn" type="button" aria-label="Toggle light and dark theme">☼</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse-dot"></span> STUDENT AI PROJECT · CLASS XII</div>
+        <h1>Make space for<br><span>better conversations.</span></h1>
+        <p class="hero-lead">Explore how AI can flag potentially harmful language in text and speech—before it spreads.</p>
+        <div class="hero-actions"><a class="primary-btn" href="#analyzer">Start an analysis <span>↘</span></a><span class="privacy-note"><span>◈</span> Runs in your browser where supported</span></div>
+        <div class="hero-stats"><div><strong>06</strong><span>language signals</span></div><div><strong>02</strong><span>input routes</span></div><div><strong>01</strong><span>human review always matters</span></div></div>
+      </div>
+      <div class="hero-art" aria-label="Illustration of a protected conversation">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="shield"><div class="shield-inner">✦</div></div>
+        <div class="float-card card-top"><span class="mini-icon green">✓</span><div><b>Context matters</b><small>Review before action</small></div></div>
+        <div class="float-card card-bottom"><span class="mini-icon violet">✧</span><div><b>Signal detected</b><small>AI-assisted, not final</small></div></div>
+        <div class="tiny-spark spark-a">✳</div><div class="tiny-spark spark-b">✦</div>
+      </div>
+    </section>
+
+    <section class="trust-strip"><span><i>01</i> Text toxicity scan</span><span><i>02</i> Live voice transcription</span><span><i>03</i> Audio-file transcription</span><span><i>04</i> Reviewable results</span></section>
+
+    <section id="analyzer" class="workspace-section">
+      <div class="section-heading"><div><div class="eyebrow">THE WORKSPACE</div><h2>Analyze a message</h2><p>Paste a message or use the microphone. The model estimates toxicity-related signals, not intent or truth.</p></div><span id="modelBadge" class="status-pill"><span class="status-dot"></span> Model loads on first use</span></div>
+      <div class="workspace-grid">
+        <section class="panel input-panel">
+          <div class="panel-title"><div class="step-num">01</div><div><h3>Input message</h3><p>Text is the fastest way to start.</p></div></div>
+          <label for="sourceText" class="field-label">Message to review</label>
+          <textarea id="sourceText" rows="7" maxlength="12000" placeholder="Paste a message here… or use the audio lab below to transcribe speech."></textarea>
+          <div class="text-meta"><span id="charCount">0 / 12,000 characters</span><button id="clearTextBtn" class="text-btn" type="button">Clear text</button></div>
+          <div class="quick-examples"><span>TRY A SAMPLE</span><button type="button" class="example-btn" data-example="Thanks for helping me today. I appreciate your time.">Friendly</button><button type="button" class="example-btn" data-example="You are useless and nobody wants you here.">Insult</button><button type="button" class="example-btn" data-example="I disagree with your point, but I respect your opinion.">Disagreement</button></div>
+          <div class="field-row"><label class="field-label" for="profile">Sensitivity profile</label><select id="profile"><option value="balanced">Balanced (recommended)</option><option value="cautious">Cautious review</option><option value="strict">Strict review</option></select></div>
+          <button id="analyzeBtn" class="primary-btn full-btn" type="button"><span>Analyze text</span><span>→</span></button>
+          <p class="fine-print">First run may download the AI model. Keep this page open and use a modern browser.</p>
+        </section>
+
+        <section class="panel result-panel" aria-live="polite">
+          <div class="panel-title"><div class="step-num">02</div><div><h3>Signal report</h3><p>Review the scores, then use your judgment.</p></div></div>
+          <div id="emptyState" class="empty-state"><div class="empty-orb"><span>✧</span></div><h3>Your report appears here</h3><p>Run an analysis to see estimated toxicity-related labels and confidence scores.</p><div class="empty-line"></div><small>AI output is a signal—not a verdict.</small></div>
+          <div id="loadingState" class="loading-state" hidden><div class="loader"></div><h3 id="loadingTitle">Preparing AI model…</h3><p id="loadingMessage">The first run can take a little while.</p><div class="progress-track"><div id="progressBar"></div></div></div>
+          <div id="reportState" hidden>
+            <div class="overall-score"><div><span class="eyebrow">OVERALL TOXICITY SIGNAL</span><div class="score-line"><strong id="overallValue">—</strong><span id="overallLabel" class="result-tag">Awaiting review</span></div></div><div class="score-ring" id="scoreRing"><span id="ringValue">—</span></div></div>
+            <p id="reportSummary" class="report-summary"></p>
+            <div id="labelsList" class="labels-list"></div>
+            <div class="report-actions"><button id="copyReportBtn" class="secondary-btn" type="button">Copy report</button><button id="downloadReportBtn" class="secondary-btn" type="button">Download report</button></div>
+            <div class="review-box"><label for="reviewDecision">Human review</label><select id="reviewDecision"><option value="unreviewed">Not reviewed yet</option><option value="needs_review">Needs human review</option><option value="not_harmful">No action suggested</option><option value="harmful">Potentially harmful</option></select><label for="reviewNotes">Review notes (optional)</label><textarea id="reviewNotes" rows="2" placeholder="Add context or explain why the result needs a second look."></textarea><button id="saveReviewBtn" class="secondary-btn" type="button">Save review locally</button><span id="reviewSaved" class="saved-note" aria-live="polite"></span></div>
+          </div>
+          <div id="errorState" class="error-state" hidden><div class="error-symbol">!</div><h3>Analysis couldn’t finish</h3><p id="errorMessage">Check your connection and try again.</p><button id="retryBtn" class="secondary-btn" type="button">Try again</button></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="audio-lab" class="audio-section">
+      <div class="section-heading"><div><div class="eyebrow">VOICE INPUT</div><h2>Audio lab</h2><p>Record speech or choose an audio file, transcribe it, then send the transcript to the same AI text analysis.</p></div><span class="audio-badge">● AUDIO WORKFLOW</span></div>
+      <div class="audio-grid">
+        <section class="panel audio-card">
+          <div class="audio-card-head"><div class="audio-icon">◉</div><div><h3>Record from microphone</h3><p>Speak clearly in a quiet place.</p></div></div>
+          <div class="recording-visual"><div class="wave-bars" id="waveBars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span id="recordStatus">Ready when you are</span></div>
+          <div class="button-row"><button id="audioStartBtn" class="primary-btn" type="button"><span class="record-dot"></span> Start recording</button><button id="audioStopBtn" class="secondary-btn" type="button" disabled>Stop</button></div>
+          <audio id="audioPlayback" class="audio-player" controls hidden></audio>
+          <div class="button-row"><button id="audioDownloadBtn" class="secondary-btn" type="button" disabled>Download recording</button><button id="audioAnalyzeBtn" class="secondary-btn" type="button" disabled>Analyze transcript →</button></div>
+          <p class="fine-print">Recording is created in your browser. Browser speech recognition support varies, and some browsers may send speech to an external recognition service. If transcription is unavailable, you can still save the audio and type the transcript manually.</p>
+        </section>
+        <section class="panel audio-card">
+          <div class="audio-card-head"><div class="audio-icon violet-icon">↥</div><div><h3>Transcribe an audio file</h3><p>Choose a clip from your device.</p></div></div>
+          <label class="drop-zone" for="audioFileInput" id="dropZone"><span class="upload-glyph">↥</span><b>Choose an audio file</b><small>WAV, MP3, M4A, OGG, or WebM · best with short clips</small><span id="fileName" class="file-name">No file selected</span><input id="audioFileInput" type="file" accept="audio/*,.wav,.mp3,.m4a,.ogg,.webm"></label>
+          <div class="file-controls"><audio id="fileAudioPreview" controls hidden></audio><button id="transcribeFileBtn" class="primary-btn full-btn" type="button" disabled>Transcribe audio with AI <span>→</span></button></div>
+          <div id="asrStatus" class="asr-status" aria-live="polite">The first transcription run downloads a speech model. Short English or multilingual clips work best; results can contain mistakes.</div>
+          <p class="fine-print">Audio transcription uses a separate speech model and may take longer or need substantial memory. Your browser downloads model files from Hugging Face. Review the transcript before analyzing it.</p>
+        </section>
+      </div>
+      <section class="panel transcript-panel">
+        <div class="transcript-heading"><div><h3>Transcript preview</h3><p>Check the words before analysis. Transcription errors can change the result.</p></div><div class="transcript-actions"><button id="useTranscriptBtn" class="secondary-btn" type="button" disabled>Use in analyzer</button><button id="clearTranscriptBtn" class="text-btn" type="button">Clear</button></div></div>
+        <textarea id="transcriptText" rows="4" placeholder="Your recorded or uploaded audio transcript will appear here. You can edit it before analysis."></textarea>
+        <div class="transcript-footer"><span id="transcriptCount">0 characters</span><button id="analyzeTranscriptBtn" class="primary-btn" type="button" disabled>Analyze transcript <span>→</span></button></div>
+      </section>
+    </section>
+
+    <section id="how-it-works" class="how-section">
+      <div class="section-heading"><div><div class="eyebrow">TRANSPARENT BY DESIGN</div><h2>How SignalShield works</h2><p>A simple AI-assisted workflow designed for learning and human review.</p></div></div>
+      <div class="steps-grid"><article class="step-card"><span>01</span><h3>Collect input</h3><p>Type a message, record speech, or select an audio clip to transcribe.</p></article><article class="step-card"><span>02</span><h3>Convert to text</h3><p>Speech is transcribed by browser speech recognition or a downloadable ASR model.</p></article><article class="step-card"><span>03</span><h3>Estimate signals</h3><p>Toxic-BERT estimates toxicity-related categories in the text.</p></article><article class="step-card"><span>04</span><h3>Review responsibly</h3><p>Read the context and record a human review; do not treat a score as a verdict.</p></article></div>
+      <div class="disclaimer"><span>ⓘ</span><div><b>Important limitation</b><p>This project uses a general toxicity classifier, not a definitive hate-speech detector. Sarcasm, reclaimed language, dialects, context, and non-English text may be misclassified. It must not be used for automatic punishment, censorship, or decisions about people.</p></div></div>
+    </section>
+  </main>
+
+  <footer><a class="brand footer-brand" href="#top"><span class="brand-mark">S</span><span>SignalShield<span class="brand-ai"> AI</span><small>STUDENT PROJECT · AI FOR GOOD</small></span></a><span>Built for learning. Reviewed by people.</span><a href="#top" class="back-top">Back to top ↑</a></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
